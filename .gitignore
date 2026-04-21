@@ -1,0 +1,6 @@
+.env
+.gstack
+.planning
+workspace/
+.claude/projects/
+__pycache__/

@@ -29,7 +29,9 @@ ShortFlow/
         ├── 03_script.md
         ├── 04_sources.md
         ├── 05_edit_guide.md
-        └── 업로드_정보.md
+        ├── 업로드_정보.md
+        ├── clips/                         # 제품 영상 클립 보관
+        └── final/                         # 완성 영상 보관
 ```
 
 ---
