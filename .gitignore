@@ -4,3 +4,4 @@
 workspace/
 .claude/projects/
 __pycache__/
+.DS_Store

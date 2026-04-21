@@ -82,7 +82,7 @@ def find_product_images(workspace: str) -> list[str]:
         if os.path.splitext(f)[1].lower() in extensions:
             images.append(os.path.join(images_dir, f))
 
-    return images[:3]  # 최대 3개
+    return images
 
 
 # ─── 썸네일 생성 ─────────────────────────────────────────
@@ -91,6 +91,30 @@ def crop_middle_half(img: Image.Image) -> Image.Image:
     """세로 이미지(9:16)의 가운데 절반을 크롭합니다."""
     quarter_h = img.height // 4
     return img.crop((0, quarter_h, img.width, quarter_h * 3))
+
+
+def crop_middle_to_aspect(img: Image.Image, target_ratio: float) -> Image.Image:
+    """이미지 중앙을 기준으로 target_ratio(width/height)에 맞춰 크롭합니다."""
+    img_ratio = img.width / img.height
+    if img_ratio > target_ratio:
+        # 이미지가 더 넓음 → 좌우를 잘라냄
+        new_w = int(img.height * target_ratio)
+        left = (img.width - new_w) // 2
+        return img.crop((left, 0, left + new_w, img.height))
+    else:
+        # 이미지가 더 높음 → 위아래를 잘라냄
+        new_h = int(img.width / target_ratio)
+        top = (img.height - new_h) // 2
+        return img.crop((0, top, img.width, top + new_h))
+
+
+def draw_image_cover(canvas: Image.Image, img: Image.Image,
+                     x: int, y: int, w: int, h: int):
+    """이미지의 가운데를 크롭해 영역 전체를 채워 배치합니다 (cover 모드)."""
+    target_ratio = w / h
+    cropped = crop_middle_to_aspect(img, target_ratio)
+    resized = cropped.resize((w, h), Image.LANCZOS)
+    canvas.paste(resized, (x, y))
 
 
 def draw_image_contain(canvas: Image.Image, img: Image.Image,
@@ -102,20 +126,15 @@ def draw_image_contain(canvas: Image.Image, img: Image.Image,
     area_ratio = w / h
 
     if img_ratio > area_ratio:
-        # 이미지가 더 넓음 → 너비에 맞추기
         new_w = w
         new_h = int(w / img_ratio)
     else:
-        # 이미지가 더 높음 → 높이에 맞추기
         new_h = h
         new_w = int(h * img_ratio)
 
     resized = img.resize((new_w, new_h), Image.LANCZOS)
-
-    # 중앙 정렬
     paste_x = x + (w - new_w) // 2
     paste_y = y + (h - new_h) // 2
-
     canvas.paste(resized, (paste_x, paste_y))
 
 
@@ -159,24 +178,22 @@ def generate_thumbnail(
     # 캔버스 생성 (RGBA)
     canvas = Image.new("RGBA", (CANVAS_W, CANVAS_H), "white")
 
-    num_sections = min(len(product_images), 3) if not no_images and product_images else 1
-    section_h = CANVAS_H // max(num_sections, 1)
+    num_sections = len(product_images) if not no_images and product_images else 1
+    # 마지막 섹션에 나머지 높이를 몰아줘 반올림 오차로 인한 빈 줄 방지
+    base_h = CANVAS_H // max(num_sections, 1)
 
-    # 섹션별 이미지 배치 (테두리/구분선 없이 풀사이즈)
     for i in range(max(num_sections, 1)):
-        sy = i * section_h
-        sh = section_h
+        sy = i * base_h
+        sh = CANVAS_H - sy if i == num_sections - 1 else base_h
 
-        # 제품 이미지
         if not no_images and i < len(product_images):
             try:
                 img = Image.open(product_images[i]).convert("RGBA")
-                draw_image_contain(canvas, img, 0, sy, CANVAS_W, sh)
+                draw_image_cover(canvas, img, 0, sy, CANVAS_W, sh)
             except Exception as e:
                 print(f"   ⚠️ 이미지 로드 실패: {product_images[i]} ({e})")
         else:
-            # 이미지 없으면 파스텔 배경
-            section_canvas = Image.new("RGBA", (CANVAS_W, sh), SECTION_BG[i % 3])
+            section_canvas = Image.new("RGBA", (CANVAS_W, sh), SECTION_BG[i % len(SECTION_BG)])
             canvas.paste(section_canvas, (0, sy))
 
     # 텍스트 레이어 (--no-text가 아닌 경우에만)
