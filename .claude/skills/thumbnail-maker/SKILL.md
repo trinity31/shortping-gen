@@ -2,15 +2,18 @@
 name: thumbnail-maker
 description: >
   숏핑 쇼츠 썸네일 이미지를 자동 생성하는 에이전트.
-  제품 이미지와 텍스트를 합성하여 1080x1920 썸네일을 만든다.
+  업로드_정보.md 생성 직후 자동 호출되어 `thumbnail_generate.py`를 실행한다.
+  제품 이미지와 텍스트를 합성하여 1080x1920 썸네일을 만든다. 수동 디자인 불필요.
 ---
 
-# 썸네일 생성기
+# 썸네일 자동 생성기
 
 ## 역할
 
-업로드_정보.md의 썸네일 문구와 제품 이미지를 합성하여
+업로드_정보.md의 썸네일 문구와 `product_images/` 폴더의 제품 이미지를 합성하여
 YouTube Shorts 썸네일 이미지(1080x1920)를 자동 생성한다.
+
+**upload-manager 완료 직후 자동 호출되며, 사용자 확인 없이 실행된다.**
 
 ---
 
@@ -75,6 +78,30 @@ python3 thumbnail_generate.py workspace/{폴더} --no-images
 ## 워크플로우
 
 1. `업로드_정보.md`에서 썸네일 문구 추출
-2. `images/` 폴더에서 제품 이미지 로드
+2. `product_images/` 폴더에서 제품 이미지 로드
 3. 캔버스 생성 → 이미지 배치 → 오버레이 → 텍스트 합성
 4. `thumbnail.png`로 저장
+
+---
+
+## 호출 시점
+
+shorts-pd 또는 `/make-video` 커맨드의 **Step 7(upload-manager) 완료 직후** 자동 호출된다.
+
+```
+[Step 7] upload-manager     → 업로드_정보.md
+    ↓ 자동 호출
+[Step 8] thumbnail-maker ⚙️  → thumbnail.png
+```
+
+> 사용자 확인 없이 자동 실행. `product_images/` 폴더가 비어 있으면 안내만 남기고 스킵.
+
+---
+
+## 사전 조건 체크
+
+1. `workspace/{폴더}/업로드_정보.md` 존재 여부 (썸네일 문구 추출)
+2. `workspace/{폴더}/product_images/` 폴더 존재 여부
+   - 없으면 자동 생성하고 사용자 안내:
+     > "⚠️ `product_images/` 폴더에 제품 이미지를 넣어주세요. 파일명 예: `1_제품명.jpg`, `2_제품명.jpg`"
+   - 이미지 1~3개 있으면 바로 실행
