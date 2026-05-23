@@ -88,7 +88,8 @@ Context Rot 방지를 위해 각 에이전트는 필요한 파일만 읽는다.
 | 도구 | 용도 | 접속 |
 |------|------|------|
 | Typecast | TTS 음성 생성 | https://typecast.ai |
-| Google Whisk | AI 이미지 생성 | https://labs.google/fx/tools/whisk |
+| Google Whisk | AI 이미지 생성 (정지 이미지) | https://labs.google/fx/tools/whisk |
+| **Higgsfield (`higgsfield-generate` 스킬)** | AI 영상 생성 (Seedance 2.0 / Nano Banana / Kling 3.0) — **사용자 승인 후만 호출** | Skill 도구 호출 |
 | CapCut | 영상 편집 | 데스크톱 앱 |
 | 쿠팡 파트너스 | 수익화 링크 | https://partners.coupang.com |
 
@@ -101,3 +102,13 @@ Context Rot 방지를 위해 각 에이전트는 필요한 파일만 읽는다.
 - **영상 길이**: 22~60초
 - **클로징 CTA**: "제품정보는 프로필 링크에!"
 - **오프닝 포맷**: "삶의 질 확 올라가는 {카테고리} 꿀템 {N}가지"
+
+## 산출물 처리 규칙 (MCP 활용)
+### 저장
+- Notion '쇼핑숏폼 컨텐츠' DB
+- 상태 표시: 검토중 / 완료
+- 페이지 이름: workspace 의 영상별 작업 폴더명과 같은 이름
+
+### 공유
+- 각 단계 완료 후 사용자 피드백이 필요할 때마다 Slack #shortping 채널에 공유
+- 포맷: [영상 제목] [단계] 완료, [Notion 링크] 로 시작
