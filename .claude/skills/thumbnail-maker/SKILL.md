@@ -29,18 +29,23 @@ YouTube Shorts 썸네일 이미지(1080x1920)를 자동 생성한다.
 ## 사용법
 
 ```bash
-# 기본 생성 (업로드_정보.md에서 추천 문구 사용)
+# 기본 생성 (업로드_정보.md에서 추천 문구 사용, 기본 강조색 = 빨강 #FF1F1F)
 python3 thumbnail_generate.py workspace/{폴더}
 
-# 문구 직접 지정
-python3 thumbnail_generate.py workspace/{폴더} --line1 "직장인 건강 꿀템" --line2 "이 3개면 달라짐"
+# 문구 직접 지정 (3줄 구조: 후킹 / 강조 / CTA)
+python3 thumbnail_generate.py workspace/{폴더} \
+  --line1 "야근러 필수" \
+  --line2 "회복템 3가지" \
+  --line3 "이거면 끝나요"
 
-# 색상 변경
-python3 thumbnail_generate.py workspace/{폴더} --accent "#FF4444" --border "#FF4444"
+# 색상 변경 (특별 카테고리에만 사용; 기본은 빨강 #FF1F1F 자동 적용)
+python3 thumbnail_generate.py workspace/{폴더} --accent "#FFD600" --border "#FFD600"
 
 # 제품 이미지 없이 텍스트만 (배경 그라데이션)
 python3 thumbnail_generate.py workspace/{폴더} --no-images
 ```
+
+> ⚠️ **기본값 변경 이력**: 2026-05-09 이전엔 노란색 #FFD600이 기본이었으나, 채널 스타일 가이드 업데이트로 **빨강 #FF1F1F**가 기본값. `--accent` 옵션 미지정 시 자동으로 빨강 적용됨.
 
 ---
 
@@ -53,17 +58,22 @@ python3 thumbnail_generate.py workspace/{폴더} --no-images
 - 이미지 위에 어두운 그라데이션 오버레이
 - 텍스트는 화면 중앙에 -2도 회전
 
-### 텍스트 스타일
-- 폰트: 굵은 고딕 (Apple SD Gothic Neo 또는 시스템 폰트)
-- 크기: 캔버스 너비의 11%
-- 색상: 흰색 (첫/마지막 줄), 강조색 (중간 줄)
-- 테두리: 흰색 외곽 + 검정 내곽 (3패스 스트로크)
+### 텍스트 스타일 (채널 표준 — `채널_스타일_가이드.md` 일치)
+- **폰트**: **Apple SD Gothic Neo Heavy** (시스템 폰트 ttc index 16, `find_font()`가 자동 선택)
+  - 대안 (수동 설치): 에스코어드림 9 Black, Pretendard Black
+- **크기**: 캔버스 너비의 11%
+- **색상**:
+  - 첫·셋째 줄: 흰색 #FFFFFF
+  - 둘째 줄: **빨강 #FF1F1F** (브랜드명·핵심 단어 부분 강조)
+  - 셋째 줄: CTA형 행동 유도 ("이거면 끝나요", "꼭 챙기세요" 등)
+- **테두리**: 검정 stroke 14px (외곽선)
 
 ### 색상 프리셋
 | 이름 | 코드 | 용도 |
 |------|------|------|
-| 노란색 | #FFD600 | 기본 강조색 |
-| 빨간색 | #FF4444 | 긴급/할인 느낌 |
+| **빨강 (채널 표준 ⭐)** | **#FF1F1F** | **기본 강조색 (2026-05-09 변경)** |
+| 노란색 | #FFD600 | 가격·할인 강조 (보조) |
+| 빨강 (밝은) | #FF4444 | 긴급 느낌 (선택) |
 | 민트 | #00BFA5 | 건강/청량 |
 | 보라 | #AA00FF | 프리미엄 |
 
