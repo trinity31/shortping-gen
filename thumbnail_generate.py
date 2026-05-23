@@ -22,8 +22,8 @@ CANVAS_W = 1080
 CANVAS_H = 1920
 BORDER_WIDTH = 16
 SECTION_BG = ["#FFF9C4", "#E3F2FD", "#F3E5F5"]
-DEFAULT_ACCENT = "#FFD600"
-DEFAULT_BORDER = "#FFD600"
+DEFAULT_ACCENT = "#FF1F1F"  # 채널 표준 (2026-05-09 변경): 노란색 → 빨강
+DEFAULT_BORDER = "#FF1F1F"  # 채널 표준 (2026-05-09 변경): 노란색 → 빨강
 ROTATION_DEG = 0
 IMAGE_ZOOM = 1.0
 
@@ -39,7 +39,16 @@ FONT_CANDIDATES = [
 # ─── 유틸 ────────────────────────────────────────────────
 
 def find_font(size: int) -> ImageFont.FreeTypeFont:
-    """시스템에서 사용 가능한 한글 폰트를 찾습니다."""
+    """시스템에서 사용 가능한 한글 폰트를 찾습니다.
+
+    AppleSDGothicNeo.ttc 컬렉션의 Heavy(index 16)를 우선 사용 (채널 스타일 가이드 표준).
+    """
+    heavy_ttc = "/System/Library/Fonts/AppleSDGothicNeo.ttc"
+    if os.path.exists(heavy_ttc):
+        try:
+            return ImageFont.truetype(heavy_ttc, size, index=16)  # Heavy
+        except Exception:
+            pass
     for path in FONT_CANDIDATES:
         if os.path.exists(path):
             try:
@@ -198,7 +207,21 @@ def generate_thumbnail(
 
     # 텍스트 레이어 (--no-text가 아닌 경우에만)
     if lines and lines[0]:
+        # 가용 폭 (좌우 패딩 80px) — 가장 긴 줄이 이 안에 들어오도록 폰트 크기 자동 축소
+        PADDING_X = 80
+        STROKE_W = 14
+        max_text_width = CANVAS_W - PADDING_X * 2  # 920px
+
         font_size = int(min(160, CANVAS_W * 0.15))
+        while font_size > 40:
+            font = find_font(font_size)
+            longest = max(
+                (font.getbbox(line)[2] - font.getbbox(line)[0] + STROKE_W * 2)
+                for line in lines
+            )
+            if longest <= max_text_width:
+                break
+            font_size -= 4
         font = find_font(font_size)
 
         # 그라데이션 오버레이 (텍스트 가독성)
