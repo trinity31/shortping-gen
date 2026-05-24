@@ -101,7 +101,7 @@ description: >
 출력: workspace/{폴더}/03_script.md
 ```
 
-**⚠️ 출력 형식 필수**: `[시간] 구간명` + `"나레이션"` 형식 (tts_generate.py 파서 호환).
+**⚠️ 출력 형식 필수**: `[시간] 구간명` + `"나레이션"` 형식 (tts_generate.py / supertonic_generate.py 공통 파서 호환).
 테이블 형식으로 작성하면 Step 4(TTS 자동 생성) 파싱 실패.
 
 대본 완성 후 사용자에게 검토 요청. 수정 사항 반영 후 다음 단계 진행.
@@ -116,11 +116,21 @@ description: >
   - workspace/{폴더}/subtitle.srt (4~9자 짧은 구절 자막)
 ```
 
-실행 명령:
+실행 명령 (날짜 기반 자동 분기):
+
+**~ 2026-06-20 (Typecast 플랜 종료까지) — Typecast 은빈 메인:**
 ```bash
 python3 tts_generate.py "workspace/{폴더}"
 python3 split_srt.py "workspace/{폴더}"
 ```
+
+**2026-06-21 ~ — Supertone Dasom 메인:**
+```bash
+python3 supertonic_generate.py "workspace/{폴더}" --output-dir audio --srt-name subtitle.srt
+python3 split_srt.py "workspace/{폴더}"
+```
+
+> 오늘 날짜를 기준으로 위 두 명령 중 하나를 선택해 실행.
 
 > 사용자 확인 없이 자동 실행. 결과 요약만 보고.
 
@@ -215,7 +225,8 @@ PD가 자율 진행하되 아래 시점에만 사용자 확인 요청:
 | 항목 | 비용 | 비고 |
 |------|------|------|
 | Claude (대본/분석/가이드) | **₩0** | Max 플랜 포함 |
-| Typecast TTS (자동) | 영상당 약 ₩500~1,000 | 글자수 기준 |
+| Typecast TTS (메인·자동, ~2026-06-20) | 영상당 약 ₩500~1,000 | 은빈 / ssfm-v30 / tempo 1.2 |
+| Supertone TTS (메인 전환 예정, 2026-06-21~) | API 사용량 기반 | Dasom / sona_speech_2 / speed 1.2 |
 | SRT 자막 분할 (자동) | **₩0** | 로컬 파이썬 스크립트 |
 | 썸네일 생성 (자동) | **₩0** | 로컬 파이썬 스크립트 (PIL) |
 | 이미지 생성 (Whisk AI) | **₩0** | Google 무료 |
@@ -227,12 +238,14 @@ PD가 자율 진행하되 아래 시점에만 사용자 확인 요청:
 ## 의존 스크립트
 
 프로젝트 루트에 위치:
-- `tts_generate.py` — Typecast TTS + SRT 생성 (Step 4)
+- `tts_generate.py` ⭐ — Typecast TTS + SRT 생성 (메인, ~2026-06-20)
+- `supertonic_generate.py` — Supertone TTS + SRT 생성 (메인 전환 예정, 2026-06-21~)
 - `split_srt.py` — SRT 짧은 구절 분할 (Step 4)
 - `thumbnail_generate.py` — 썸네일 생성 (Step 8)
 
 필수 환경변수 (`.env`):
-- `TYPEAI_API_KEY` — Typecast API 키
+- `TYPEAI_API_KEY` — Typecast API 키 (메인, ~2026-06-20)
+- `SUPERTONIC_API_KEY` — Supertone API 키 (2026-06-21~)
 
 ---
 
@@ -240,7 +253,8 @@ PD가 자율 진행하되 아래 시점에만 사용자 확인 요청:
 
 | 단계 | 에러 | 조치 |
 |------|------|------|
-| Step 4 | "TYPEAI_API_KEY 없음" | `.env`에 API 키 추가 후 재시도 |
+| Step 4 | "TYPEAI_API_KEY 없음" (~2026-06-20) | `.env`에 Typecast 키 추가 후 재시도 |
+| Step 4 | "SUPERTONIC_API_KEY 없음" (2026-06-21~) | `.env`에 Supertone 키 추가 후 재시도 |
 | Step 4 | "대본 파싱 실패" | Step 3 대본이 `[시간]` 형식인지 확인, 재작성 |
 | Step 8 | "제품 이미지 없음" | `product_images/`에 이미지 넣고 수동 실행 |
 | Step 8 | "썸네일 문구 없음" | `업로드_정보.md`의 "🖼 썸네일 문구" 섹션 확인 |

@@ -18,7 +18,7 @@ description: >
 
 - `workspace/{폴더}/03_script.md` — 대본 (컷 설명 + 시간)
 - `workspace/{폴더}/04_sources.md` — 소스 수집 현황
-- `workspace/{폴더}/subtitle.srt` — 자동 생성된 SRT 자막 (tts_generate.py로 생성)
+- `workspace/{폴더}/subtitle.srt` — 자동 생성된 SRT 자막 (~2026-06-20: tts_generate.py / 2026-06-21~: supertonic_generate.py)
 - `workspace/{폴더}/audio/*.mp3` — 컷별 TTS 음성 파일
 
 ---
@@ -63,7 +63,7 @@ description: >
 - SRT가 없으면 한글 기준 초당 약 4~5자로 추정
 
 **SRT 자막 분할 규칙 (필수):**
-- tts_generate.py가 생성한 SRT는 컷 단위이므로, **반드시 짧은 구절 단위로 재분할**한다
+- tts_generate.py / supertonic_generate.py가 생성한 SRT는 컷 단위이므로, **반드시 짧은 구절 단위로 재분할**한다
 - 한 자막 단위 = **4~9자** (글자 크기 15 기준 한 줄에 표시되는 분량)
 - 예: "브리타 정수기 필터 바꿀 때마다 쓰레기 죄책감 드시는 분 보세요"
   → "브리타 정수기 필터" / "바꿀 때마다" / "쓰레기 죄책감" / "드시는 분" / "보세요"
@@ -85,7 +85,7 @@ description: >
 
 ## 편집 전 준비
 
-- [ ] TTS 음성 + SRT 자막 생성 (`python3 tts_generate.py workspace/{폴더}`)
+- [ ] TTS 음성 + SRT 자막 생성 (~2026-06-20: `python3 tts_generate.py workspace/{폴더}` / 2026-06-21~: `python3 supertonic_generate.py workspace/{폴더} --output-dir audio --srt-name subtitle.srt`)
 - [ ] 소스 이미지/영상 파일 폴더 정리
 - [ ] CapCut 새 프로젝트 생성 (비율: 9:16, 해상도: 1080x1920)
 - [ ] SRT 자막 파일 임포트 (subtitle.srt → CapCut 자막 트랙에 드래그)

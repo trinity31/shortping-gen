@@ -400,20 +400,22 @@ AI 이미지를 실사 영상 클립으로 변환한다.
 
 ## TTS 음성 & SRT 자막 자동 생성
 
-`tts_generate.py` 스크립트로 TTS 음성과 SRT 자막을 한 번에 생성한다.
+오늘 날짜에 따라 메인 엔진이 다름:
+- **~ 2026-06-20**: Typecast 은빈 (`tts_generate.py`) — Typecast 플랜 종료까지
+- **2026-06-21 ~**: Supertone Dasom (`supertonic_generate.py`)
 
 ```bash
-# 전체 생성 (MP3 + SRT)
-python3 tts_generate.py workspace/{폴더}
+# 현재 (~2026-06-20) — Typecast 메인
+python3 tts_generate.py workspace/{폴더}                          # 전체 생성
+python3 tts_generate.py workspace/{폴더} --voice 문정 --tempo 1.3  # 보이스/속도 변경
+python3 tts_generate.py workspace/{폴더} --cut 2                  # 특정 컷만 재생성
+python3 tts_generate.py --list-voices                              # 보이스 목록
 
-# 보이스/속도 변경
-python3 tts_generate.py workspace/{폴더} --voice 문정 --tempo 1.3
-
-# 특정 컷만 재생성
-python3 tts_generate.py workspace/{폴더} --cut 2
-
-# 보이스 목록 확인
-python3 tts_generate.py --list-voices
+# 2026-06-21 부터 — Supertone 메인 (audio/, subtitle.srt로 출력하도록 옵션 지정)
+python3 supertonic_generate.py workspace/{폴더} --output-dir audio --srt-name subtitle.srt
+python3 supertonic_generate.py workspace/{폴더} --speed 1.3 --model sona_speech_2_flash
+python3 supertonic_generate.py workspace/{폴더} --voice-id <voice_id>
+python3 supertonic_generate.py workspace/{폴더} --cut 2
 ```
 
 **생성 결과물:**
@@ -421,7 +423,7 @@ python3 tts_generate.py --list-voices
 - `workspace/{폴더}/subtitle.srt` — 실제 오디오 길이 기반 SRT 자막
 
 **SRT 자막 분할 규칙 (필수):**
-- tts_generate.py가 생성한 SRT는 컷 단위로 되어 있으므로, **반드시 짧은 구절 단위로 재분할**한다
+- tts_generate.py / supertonic_generate.py가 생성한 SRT는 컷 단위로 되어 있으므로, **반드시 짧은 구절 단위로 재분할**한다
 - 한 자막 단위 = **4~9자** (글자 크기 15 기준 한 줄에 표시되는 분량)
 - 예: "브리타 정수기 필터 바꿀 때마다 쓰레기 죄책감 드시는 분 보세요"
   → "브리타 정수기 필터" / "바꿀 때마다" / "쓰레기 죄책감" / "드시는 분" / "보세요"

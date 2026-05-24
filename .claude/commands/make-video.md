@@ -81,7 +81,7 @@ description: 숏핑 쇼츠 영상을 단계별로 제작한다. TTS·자막·썸
 - 유형 A (3종 묶음): 22~28초, 10~13컷
 - 유형 B (1종 집중): 40~60초, 18~25컷
 
-### ⚠️ 필수 출력 형식 (tts_generate.py 파서 호환)
+### ⚠️ 필수 출력 형식 (tts_generate.py / supertonic_generate.py 공통 파서 호환)
 
 ```markdown
 [0~3초] 컷 1 — 공감 훅
@@ -135,24 +135,43 @@ description: 숏핑 쇼츠 영상을 단계별로 제작한다. TTS·자막·썸
 
 ## Step 3: TTS + SRT 자동 생성 ⚙️ (자동)
 
-**목표**: 대본을 Typecast API로 음성(mp3)과 자막(SRT) 파일로 자동 변환한다.
+**목표**: 대본을 TTS API로 음성(mp3)과 자막(SRT) 파일로 자동 변환한다.
 
 > ⚙️ **이 단계는 사용자 확인 없이 자동 실행된다.** 대본 확정 직후 바로 진행.
+
+### 🗓 엔진 선택 룰 (오늘 날짜 기준)
+
+| 기간 | 메인 엔진 | 스크립트 | 환경변수 |
+|------|----------|---------|---------|
+| **~ 2026-06-20** (현재) | **Typecast** (은빈) | `tts_generate.py` | `TYPEAI_API_KEY` |
+| **2026-06-21 ~** | Supertone (Dasom) | `supertonic_generate.py` | `SUPERTONIC_API_KEY` |
+
+Typecast 플랜이 2026-06-20에 종료되므로 그 다음 날부터 Supertone으로 자동 전환.
 
 ### 사전 체크
 
 1. `03_script.md`가 `[시간]` + `"나레이션"` 형식인지 확인 (테이블 형식이면 Step 2로 돌아가 재작성)
-2. 프로젝트 루트 `.env`에 `TYPEAI_API_KEY`가 설정되어 있는지 확인
+2. 프로젝트 루트 `.env`에 메인 엔진 API 키가 설정되어 있는지 확인
+   - 2026-06-20 까지: `TYPEAI_API_KEY`
+   - 2026-06-21 부터: `SUPERTONIC_API_KEY`
 
 ### 실행
 
+**현재 (2026-06-20 까지) — Typecast 메인:**
 ```bash
 cd /Users/trinity/Documents/LLM\ Vault/Projects/ShortFlow/shortping-gen
 
-# 1. TTS 음성 + SRT 자막 자동 생성
+# 1. TTS 음성 + SRT 자막 자동 생성 (메인: Typecast 은빈)
 python3 tts_generate.py "workspace/{폴더명}"
 
 # 2. SRT 자막을 4~9자 짧은 구절로 분할 (살림토끼 스타일)
+python3 split_srt.py "workspace/{폴더명}"
+```
+
+**2026-06-21 부터 — Supertone 메인:**
+```bash
+# audio/와 subtitle.srt 표준 위치로 출력하도록 옵션 지정
+python3 supertonic_generate.py "workspace/{폴더명}" --output-dir audio --srt-name subtitle.srt
 python3 split_srt.py "workspace/{폴더명}"
 ```
 
@@ -173,7 +192,7 @@ workspace/{폴더}/
 > - 음성 파일: {N}개 (`audio/` 폴더)
 > - 자막 파일: `subtitle.srt` ({M}개 구절)
 > - 총 나레이션 길이: {X.X}초
-> - 보이스: 은빈 | 속도: 1.2x
+> - 보이스: 은빈 (Typecast, ~2026-06-20) / 2026-06-21~ Dasom (Supertone) | 속도: 1.2x
 >
 > 다음 단계(소스 수집)로 이어서 진행합니다."
 
@@ -339,7 +358,8 @@ workspace/{폴더}/
 
 | 에러 | 조치 |
 |------|------|
-| Step 3 실패: "TYPEAI_API_KEY 없음" | `.env`에 API 키 추가 후 재시도 |
+| Step 3 실패: "TYPEAI_API_KEY 없음" (~2026-06-20) | `.env`에 Typecast 키 추가 후 재시도 |
+| Step 3 실패: "SUPERTONIC_API_KEY 없음" (2026-06-21~) | `.env`에 Supertone 키 추가 후 재시도 |
 | Step 3 실패: "대본 파싱 실패" | Step 2 대본이 `[시간]` 형식인지 확인, 재작성 |
 | Step 7 실패: "제품 이미지 없음" | `product_images/` 폴더에 이미지 넣고 `python3 thumbnail_generate.py workspace/{폴더}` 수동 실행 |
 | Step 7 실패: "썸네일 문구 없음" | `업로드_정보.md`의 "🖼 썸네일 문구" 섹션 확인 |

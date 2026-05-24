@@ -59,7 +59,8 @@ Claude Code에서 이 폴더를 열고:
 | source-collector | AI 이미지 프롬프트 생성 | ₩0 (Max) |
 | edit-guide | CapCut 편집 가이드 | ₩0 (Max) |
 | upload-manager | 업로드 정보 생성 | ₩0 (Max) |
-| **Typecast TTS** | 음성 나레이션 | **₩500~1,000/영상** |
+| **Typecast TTS** | 음성 나레이션 (메인, ~2026-06-20) | **₩500~1,000/영상** |
+| Supertone TTS (전환 예정) | 메인 전환 예정 (2026-06-21~) | API 사용량 기반 |
 | Google Whisk AI | 이미지 생성 | ₩0 (무료) |
 
 **영상 1개당 총 비용: ₩500~1,500** (기존 ShortFlow API 방식 대비 약 70~90% 절감)
@@ -87,7 +88,8 @@ Context Rot 방지를 위해 각 에이전트는 필요한 파일만 읽는다.
 
 | 도구 | 용도 | 접속 |
 |------|------|------|
-| Typecast | TTS 음성 생성 | https://typecast.ai |
+| **Typecast** ⭐ | TTS 음성 생성 (메인, ~2026-06-20 플랜 종료) | https://typecast.ai |
+| Supertone (전환 예정) | TTS 음성 생성 (2026-06-21~ 메인 전환) | https://supertoneapi.com |
 | Google Whisk | AI 이미지 생성 (정지 이미지) | https://labs.google/fx/tools/whisk |
 | **Higgsfield (`higgsfield-generate` 스킬)** | AI 영상 생성 (Seedance 2.0 / Nano Banana / Kling 3.0) — **사용자 승인 후만 호출** | Skill 도구 호출 |
 | CapCut | 영상 편집 | 데스크톱 앱 |
